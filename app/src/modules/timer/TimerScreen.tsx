@@ -1,32 +1,46 @@
-import { differenceInSeconds } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import React from 'react';
 import { Button, FlatList, Text, TextInput, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
 
+import { useAsyncEffect } from '@app/src/hooks/useAsyncEffect';
 import { RootState } from '@app/src/store';
-import { addTask, Task, updateTaskEndDate } from '@app/src/store/tasksSlice';
+import { addTask, addTasks, Task, TasksState, updateTaskEndDate } from '@app/src/store/tasksSlice';
+import { dateStringToFormat, getDiffInSeconds, secondsToFormat } from '@app/src/utils/time';
 
+import * as SQLiteActions from '../../services/sqlite';
 import useTimer from './hooks/useTimer';
 
 const TimerScreen = () => {
   const [taskName, setTaskName] = React.useState<string | undefined>();
+  const [error, setError] = React.useState<string | undefined>();
   const [runningTask, setRunningTask] = React.useState<Task>();
 
-  const dispatch = useDispatch();
   const {timer, startTimer, stopTimer} = useTimer();
 
-  const tasks = useSelector(({tasksSlice}): RootState => tasksSlice.tasks);
+  const dispatch = useDispatch();
+
+  const tasks = useSelector(({tasksSlice}): Task[] => tasksSlice.tasks);
   const lastTask = React.useMemo(() => tasks[tasks.length - 1], [tasks]);
 
-  const handleStart = () => {
-    if (taskName && !runningTask) {
-      dispatch(addTask(taskName));
+  const handleStart = async () => {
+    if (!taskName) {
+      setError('Error');
+      return;
+    }
+    if (!runningTask) {
+      const newTask = createNewTask(taskName);
+      dispatch(addTask(newTask));
+      await SQLiteActions.addTask(newTask);
     }
   };
 
-  const handleStop = () => {
+  const handleStop = async () => {
     if (runningTask) {
-      dispatch(updateTaskEndDate(runningTask.id));
+      const dateString = new Date().toString();
+      dispatch(updateTaskEndDate({id: runningTask.id, endDate: dateString}));
+      await SQLiteActions.updateTaskEndDate(runningTask.id, dateString);
     }
   };
 
@@ -36,7 +50,7 @@ const TimerScreen = () => {
     }
 
     if (!lastTask.endDate) {
-      const diff = getDiffInSeconds(lastTask.endDate);
+      const diff = getDiffInSeconds(lastTask.startDate, new Date().toString());
       startTimer(diff);
       setRunningTask(lastTask);
       return;
@@ -47,7 +61,14 @@ const TimerScreen = () => {
       setRunningTask(undefined);
       setTaskName(undefined);
     }
-  }, [tasks, lastTask, setRunningTask]);
+  }, [tasks, lastTask]);
+
+  useAsyncEffect(async () => {
+    if (!tasks.length) {
+      const tasksFromSqlDB = await SQLiteActions.getAllTasks();
+      dispatch(addTasks(tasksFromSqlDB));
+    }
+  }, [tasks, tasks]);
 
   return (
     <View>
@@ -59,16 +80,25 @@ const TimerScreen = () => {
           placeholder="useless placeholder"
           keyboardType="numeric"
         />
+        <Text>{error}</Text>
         <Button title="start" onPress={handleStart} />
         <Button title="stop" onPress={handleStop} />
       </View>
       <Text>{timer}</Text>
 
-      <FlatList<Task>
-        data={tasks}
+      <FlatList<Task[]>
+        data={formatTasks(tasks)}
         renderItem={({item}) => (
-          <View>
-            <Text>{item.name}</Text>
+          <View style={{marginBottom: 50}}>
+            <Text>Day: {dateStringToFormat(item[0].startDate)}</Text>
+            {item.map(t => {
+              return (
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={{marginRight: 20}}>{t?.name}</Text>
+                  <Text>{secondsToFormat(t?.trackedTime)}</Text>
+                </View>
+              );
+            })}
           </View>
         )}
       />
@@ -78,5 +108,46 @@ const TimerScreen = () => {
 
 export default TimerScreen;
 
-const getDiffInSeconds = (startDate: Date) =>
-  differenceInSeconds(startDate, new Date()) * -1;
+const createNewTask = (name: string) => {
+  return {
+    id: uuidv4(),
+    name,
+    startDate: new Date(1995, 11, 17).toString(),
+  };
+};
+const formatTasks = (tasks: Task[]) => {
+  return [...tasks].reduce(
+    (accumulator, currentValue, currentIndex, array) => {
+      const taskWithTrackedTime = addTrackedTimeToTask(currentValue);
+      const accumulatorLastItem = accumulator[accumulator.length - 1];
+
+      if (!taskWithTrackedTime) {
+        return accumulator;
+      }
+
+      if (
+        isSameDay(
+          Date.parse(accumulatorLastItem[0].startDate),
+          Date.parse(taskWithTrackedTime.startDate),
+        )
+      ) {
+        return [
+          ...accumulator.slice(0, accumulator.length - 1),
+          [...accumulatorLastItem, taskWithTrackedTime],
+        ];
+      }
+
+      return [...accumulator, [taskWithTrackedTime]];
+    },
+    [[tasks[0]]],
+  );
+};
+const addTrackedTimeToTask = (task: Task) => {
+  if (!task?.startDate || !task?.endDate) {
+    return;
+  }
+  return {
+    ...task,
+    trackedTime: getDiffInSeconds(task.startDate, task.endDate),
+  };
+};

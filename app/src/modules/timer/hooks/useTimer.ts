@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import React from 'react';
 
+import { secondsToFormat } from '@app/src/utils/time';
+
 const useTimer = () => {
   const [seconds, setSeconds] = React.useState<number>(0);
   const [isRunning, setIsRunning] = React.useState<boolean>(false);
@@ -31,7 +33,7 @@ const useTimer = () => {
   }, [setSeconds]);
 
   return {
-    timer: format(new Date(0, 0, 0, 0, 0, seconds), 'HH:mm:ss'),
+    timer: secondsToFormat(seconds),
     startTimer,
     stopTimer,
     isRunning,
