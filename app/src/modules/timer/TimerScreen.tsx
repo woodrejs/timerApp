@@ -1,38 +1,42 @@
-import { format, isSameDay } from 'date-fns';
 import React from 'react';
-import { Button, FlatList, Text, TextInput, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { v4 as uuidv4 } from 'uuid';
 
+import SquareSvg from '@app/assets/svg/SquareSvg';
+import RoundIconButton from '@app/src/components/RoundIconButton';
 import { useAsyncEffect } from '@app/src/hooks/useAsyncEffect';
-import { RootState } from '@app/src/store';
-import { addTask, addTasks, Task, TasksState, updateTaskEndDate } from '@app/src/store/tasksSlice';
-import { dateStringToFormat, getDiffInSeconds, secondsToFormat } from '@app/src/utils/time';
+import { addTask, addTasks, Task, updateTaskEndDate } from '@app/src/store/tasksSlice';
+import { getDiffInSeconds } from '@app/src/utils/time';
 
 import * as SQLiteActions from '../../services/sqlite';
+import TimerDayCard from './components/TimerDayCard';
 import useTimer from './hooks/useTimer';
+import * as Style from './TimerScreen.style';
+import { createNewTask, formatTasks } from './TimerScreen.utils';
 
 const TimerScreen = () => {
   const [taskName, setTaskName] = React.useState<string | undefined>();
   const [error, setError] = React.useState<string | undefined>();
   const [runningTask, setRunningTask] = React.useState<Task>();
 
-  const {timer, startTimer, stopTimer} = useTimer();
+  const {timer, isRunning, startTimer, stopTimer} = useTimer();
 
   const dispatch = useDispatch();
 
   const tasks = useSelector(({tasksSlice}): Task[] => tasksSlice.tasks);
   const lastTask = React.useMemo(() => tasks[tasks.length - 1], [tasks]);
 
-  const handleStart = async () => {
-    if (!taskName) {
+  const handleStart = async (name?: string) => {
+    if (!taskName && !name) {
       setError('Error');
       return;
     }
+
     if (!runningTask) {
-      const newTask = createNewTask(taskName);
+      const newTask = createNewTask(taskName || name || 'No title');
       dispatch(addTask(newTask));
       await SQLiteActions.addTask(newTask);
+      setError(undefined);
     }
   };
 
@@ -44,19 +48,26 @@ const TimerScreen = () => {
     }
   };
 
-  React.useEffect(() => {
-    if (!tasks.length) {
-      return;
-    }
+  const handleInput = (value: string) => setTaskName(value);
 
-    if (!lastTask.endDate) {
+  const data = React.useMemo(() => formatTasks(tasks), [tasks]);
+
+  const startButtonOnPress = (name: string) => {
+    if (!runningTask) {
+      handleStart(name);
+      setTaskName(name);
+    }
+  };
+
+  React.useEffect(() => {
+    if (!lastTask?.endDate && tasks.length) {
       const diff = getDiffInSeconds(lastTask.startDate, new Date().toString());
       startTimer(diff);
       setRunningTask(lastTask);
       return;
     }
 
-    if (lastTask.endDate) {
+    if (lastTask?.endDate && tasks.length) {
       stopTimer();
       setRunningTask(undefined);
       setTaskName(undefined);
@@ -64,90 +75,53 @@ const TimerScreen = () => {
   }, [tasks, lastTask]);
 
   useAsyncEffect(async () => {
-    if (!tasks.length) {
-      const tasksFromSqlDB = await SQLiteActions.getAllTasks();
-      dispatch(addTasks(tasksFromSqlDB));
-    }
-  }, [tasks, tasks]);
+    const tasksFromSqlDB = await SQLiteActions.getAllTasks();
+    dispatch(addTasks(tasksFromSqlDB));
+  }, []);
 
   return (
     <View>
-      <View style={{flexDirection: 'row'}}>
-        <TextInput
-          style={{flex: 1}}
-          onChangeText={value => setTaskName(value)}
-          value={taskName}
-          placeholder="useless placeholder"
-          keyboardType="numeric"
-        />
-        <Text>{error}</Text>
-        <Button title="start" onPress={handleStart} />
-        <Button title="stop" onPress={handleStop} />
-      </View>
-      <Text>{timer}</Text>
-
-      <FlatList<Task[]>
-        data={formatTasks(tasks)}
-        renderItem={({item}) => (
-          <View style={{marginBottom: 50}}>
-            <Text>Day: {dateStringToFormat(item[0].startDate)}</Text>
-            {item.map(t => {
-              return (
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={{marginRight: 20}}>{t?.name}</Text>
-                  <Text>{secondsToFormat(t?.trackedTime)}</Text>
-                </View>
-              );
-            })}
-          </View>
+      <Style.Panel>
+        {isRunning ? (
+          <>
+            <Style.TaskTitle>{runningTask?.name}</Style.TaskTitle>
+            <Style.Counter>{timer}</Style.Counter>
+            <RoundIconButton
+              icon={SquareSvg}
+              onPress={handleStop}
+              color="red"
+            />
+          </>
+        ) : (
+          <>
+            <Style.NameField
+              value={taskName}
+              onChange={handleInput}
+              placeholder="What are you doing?"
+              isError={error}
+            />
+            <RoundIconButton
+              icon={Style.PlayIcon}
+              onPress={handleStart}
+              color="green"
+            />
+          </>
         )}
-      />
+      </Style.Panel>
+      <Style.ListBox>
+        <FlatList<Task[]>
+          data={data}
+          renderItem={({item}) => (
+            <TimerDayCard
+              label={item[0]?.startDate}
+              tasks={item}
+              startButtonOnPress={startButtonOnPress}
+            />
+          )}
+        />
+      </Style.ListBox>
     </View>
   );
 };
 
 export default TimerScreen;
-
-const createNewTask = (name: string) => {
-  return {
-    id: uuidv4(),
-    name,
-    startDate: new Date(1995, 11, 17).toString(),
-  };
-};
-const formatTasks = (tasks: Task[]) => {
-  return [...tasks].reduce(
-    (accumulator, currentValue, currentIndex, array) => {
-      const taskWithTrackedTime = addTrackedTimeToTask(currentValue);
-      const accumulatorLastItem = accumulator[accumulator.length - 1];
-
-      if (!taskWithTrackedTime) {
-        return accumulator;
-      }
-
-      if (
-        isSameDay(
-          Date.parse(accumulatorLastItem[0].startDate),
-          Date.parse(taskWithTrackedTime.startDate),
-        )
-      ) {
-        return [
-          ...accumulator.slice(0, accumulator.length - 1),
-          [...accumulatorLastItem, taskWithTrackedTime],
-        ];
-      }
-
-      return [...accumulator, [taskWithTrackedTime]];
-    },
-    [[tasks[0]]],
-  );
-};
-const addTrackedTimeToTask = (task: Task) => {
-  if (!task?.startDate || !task?.endDate) {
-    return;
-  }
-  return {
-    ...task,
-    trackedTime: getDiffInSeconds(task.startDate, task.endDate),
-  };
-};

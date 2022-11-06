@@ -8,5 +8,5 @@ export const dateStringToFormat = (
   dateString: string,
   formatString = 'dd/MM/yyy',
 ) => {
-  format(Date.parse(dateString), formatString);
+  return format(Date.parse(dateString), formatString);
 };

@@ -5,6 +5,7 @@ import {store} from './app/src/store/index';
 import {Provider} from 'react-redux';
 import TimerScreen from './app/src/modules/timer/TimerScreen';
 import * as SQLiteActions from './app/src/services/sqlite';
+import {BottomModalProvider} from './app/src/modules/modals/hooks/useBottomModal';
 
 const App = () => {
   React.useEffect(() => {
@@ -13,9 +14,11 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <SafeAreaView>
-        <TimerScreen />
-      </SafeAreaView>
+      <BottomModalProvider>
+        <SafeAreaView>
+          <TimerScreen />
+        </SafeAreaView>
+      </BottomModalProvider>
     </Provider>
   );
 };
