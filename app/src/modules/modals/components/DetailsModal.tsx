@@ -30,7 +30,6 @@ const DetailsModal = ({task}: Props) => {
         <ContentBox>
           <Title numberOfLines={1}>End:</Title>
           <Value numberOfLines={1}>
-            {' '}
             {dateStringToFormat(task.endDate, 'dd/MM/yyy HH:mm:ss')}
           </Value>
         </ContentBox>

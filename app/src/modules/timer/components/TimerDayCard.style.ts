@@ -19,6 +19,7 @@ export const Label = styled.Text`
   font-weight: bold;
   font-size: 18px;
   text-transform: uppercase;
+  text-overflow: ellipsis;
 `;
 export const TrackedTime = styled.Text`
   font-weight: bold;

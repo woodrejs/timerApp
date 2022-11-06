@@ -28,14 +28,14 @@ const TimerDayCard = (props: Props) => {
   return (
     <Style.Container>
       <Style.Box>
-        <Style.Label>{getLabel(props.label)}</Style.Label>
+        <Style.Label numberOfLines={1}>{getLabel(props.label)}</Style.Label>
         <Style.TrackedTime>
           {getTrackedTimeLabel(tasksWitTrackedTime)}
         </Style.TrackedTime>
       </Style.Box>
 
       {tasksWitTrackedTime.map(task => (
-        <Style.Card>
+        <Style.Card key={task.id}>
           <Style.CardTitle>{task.name}</Style.CardTitle>
           <Style.CardCounter>
             {secondsToFormat(task.trackedTime)}

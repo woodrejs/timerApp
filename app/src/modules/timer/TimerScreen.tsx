@@ -111,6 +111,7 @@ const TimerScreen = () => {
       <Style.ListBox>
         <FlatList<Task[]>
           data={data}
+          keyExtractor={(item, index) => `${item.length + index}`}
           renderItem={({item}) => (
             <TimerDayCard
               label={item[0]?.startDate}
