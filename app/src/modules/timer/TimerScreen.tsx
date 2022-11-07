@@ -1,23 +1,18 @@
 import React from 'react';
-import {FlatList} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import { FlatList } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
 import SquareSvg from '@app/assets/svg/SquareSvg';
 import RoundIconButton from '@app/src/components/RoundIconButton';
-import {useAsyncEffect} from '@app/src/hooks/useAsyncEffect';
-import {
-  addTask,
-  addTasks,
-  Task,
-  updateTaskEndDate,
-} from '@app/src/store/tasksSlice';
-import {getDiffInSeconds} from '@app/src/utils/time';
+import { useAsyncEffect } from '@app/src/hooks/useAsyncEffect';
+import { addTask, addTasks, Task, updateTaskEndDate } from '@app/src/store/tasksSlice';
+import { getDiffInSeconds } from '@app/src/utils/time';
 
 import * as SQLiteActions from '../../services/sqlite';
 import TimerDayCard from './components/TimerDayCard';
 import useTimer from './hooks/useTimer';
 import * as Style from './TimerScreen.style';
-import {createNewTask, formatTasks} from './TimerScreen.utils';
+import { createNewTask, formatTasks } from './TimerScreen.utils';
 
 const TimerScreen = () => {
   const [taskName, setTaskName] = React.useState<string | undefined>();
@@ -86,6 +81,7 @@ const TimerScreen = () => {
     <Style.ListBox>
       <FlatList<Task[]>
         data={data}
+        contentContainerStyle={{flexGrow: 1}}
         keyExtractor={item => `${item[0]?.id}`}
         stickyHeaderIndices={[0]}
         showsVerticalScrollIndicator={false}
@@ -98,6 +94,11 @@ const TimerScreen = () => {
               startButtonOnPress={startButtonOnPress}
             />
           ) : null
+        }
+        ListEmptyComponent={
+          <Style.EmptyBox>
+            <Style.EmptyBoxTitle>No tasks</Style.EmptyBoxTitle>
+          </Style.EmptyBox>
         }
         ListHeaderComponent={
           <Style.Panel>
