@@ -10,7 +10,20 @@ export const createNewTask = (name: string) => {
   };
 };
 export const formatTasks = (tasks: Task[]) => {
-  return [...tasks].reduce<Task[][]>((accumulator, currentValue) => {
+  const sortedTasks = [...tasks].sort((a, b) => {
+    const date1 = Date.parse(a.startDate);
+    const date2 = Date.parse(b.startDate);
+
+    if (date1 < date2) {
+      return 1;
+    }
+    if (date1 > date2) {
+      return -1;
+    }
+    return 0;
+  });
+
+  return sortedTasks.reduce<Task[][]>((accumulator, currentValue) => {
     const lastAccItem = accumulator[accumulator.length - 1];
 
     if (!currentValue?.endDate) {
@@ -33,6 +46,6 @@ export const formatTasks = (tasks: Task[]) => {
       ];
     }
 
-    return accumulator;
+    return [...accumulator, [currentValue]];
   }, []);
 };

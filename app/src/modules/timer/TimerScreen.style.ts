@@ -10,6 +10,7 @@ export const Panel = styled.View`
   padding: 20px;
   border-bottom-color: lightgray;
   border-bottom-width: 1px;
+  background-color: white;
 `;
 export const Counter = styled.Text`
   margin-right: 20px;
@@ -27,7 +28,6 @@ export const PlayIcon = styled(TriangleSvg)`
   margin-right: 5px;
 `;
 export const ListBox = styled.View`
-  padding: 10px;
   background-color: lightgray;
   height: 100%;
 `;

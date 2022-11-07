@@ -4,6 +4,7 @@ import TriangleSvg from '@app/assets/svg/TriangleSvg';
 import RoundIconButton from '@app/src/components/RoundIconButton';
 
 export const Container = styled.View`
+  margin: 10px;
   padding: 10px;
   padding-bottom: 0;
   border-radius: 10px;
@@ -19,13 +20,12 @@ export const Label = styled.Text`
   font-weight: bold;
   font-size: 18px;
   text-transform: uppercase;
-  text-overflow: ellipsis;
 `;
 export const TrackedTime = styled.Text`
   font-weight: bold;
   font-size: 16px;
 `;
-export const Card = styled.TouchableOpacity`
+export const Card = styled.View`
   flex-direction: row;
   border-bottom-color: #e7e7e7;
   border-bottom-width: 1px;
