@@ -1,8 +1,8 @@
 import React from 'react';
-import Modal, { Direction, ModalProps } from 'react-native-modal';
+import Modal, {Direction, ModalProps} from 'react-native-modal';
 import styled from 'styled-components/native';
 
-import { ModalName, ModalsList } from './useBottomModal.utils';
+import {ModalName, ModalsList} from './useBottomModal.utils';
 
 type ContentProps = Record<string, unknown> | undefined;
 type ModalConfig = Partial<ModalProps> | undefined;

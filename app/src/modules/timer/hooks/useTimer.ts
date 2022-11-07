@@ -1,7 +1,6 @@
-import { format } from 'date-fns';
 import React from 'react';
 
-import { secondsToFormat } from '@app/src/utils/time';
+import {secondsToFormat} from '@app/src/utils/time';
 
 const useTimer = () => {
   const [seconds, setSeconds] = React.useState<number>(0);
@@ -12,8 +11,8 @@ const useTimer = () => {
   const startTimer = (diff?: number) => {
     if (!isRunning) {
       interval.current = setInterval(() => {
-        setSeconds(seconds => {
-          const newSecounds = !seconds && diff ? diff : seconds;
+        setSeconds((timeInSeconds: number) => {
+          const newSecounds = !timeInSeconds && diff ? diff : timeInSeconds;
           return newSecounds + 1;
         });
       }, 1000);

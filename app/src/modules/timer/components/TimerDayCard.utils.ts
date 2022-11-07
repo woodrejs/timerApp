@@ -1,7 +1,11 @@
-import { isToday, isYesterday } from 'date-fns';
+import {isToday, isYesterday} from 'date-fns';
 
-import { Task } from '@app/src/store/tasksSlice';
-import { dateStringToFormat, getDiffInSeconds, secondsToFormat } from '@app/src/utils/time';
+import {Task} from '@app/src/store/tasksSlice';
+import {
+  dateStringToFormat,
+  getDiffInSeconds,
+  secondsToFormat,
+} from '@app/src/utils/time';
 
 export const getLabel = (label: string) => {
   if (isToday(Date.parse(label))) {
@@ -27,7 +31,9 @@ export const addTrackedTimeToTask = (tasks: Task[]) => {
   return tasks.map(task => {
     return {
       ...task,
-      trackedTime: getDiffInSeconds(task.startDate, task.endDate),
+      trackedTime: task.endDate
+        ? getDiffInSeconds(task.startDate, task.endDate)
+        : undefined,
     };
   });
 };

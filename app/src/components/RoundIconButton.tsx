@@ -1,9 +1,11 @@
 import React from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import {StyleProp, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
 
+import {SvgIconType} from '@app/src/types/svg';
+
 interface Props {
-  icon: any; // TODO
+  icon: (props: SvgIconType) => JSX.Element;
   onPress: () => void;
   color?: string;
   style?: StyleProp<ViewStyle>;

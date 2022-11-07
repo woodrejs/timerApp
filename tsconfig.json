@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "plugins": [
-      {
-        "baseUrl": ".",
-        "paths": {
-          "@app/*": ["app/*"]
-        }
-      }
-    ],
+    // "plugins": [
+    //   {
+    //     "baseUrl": ".",
+    //     "paths": {
+    //       "@app/*": ["app/*"]
+    //     }
+    //   }
+    // ],
 
     /* Basic Options */
     "target": "es2017" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
@@ -36,7 +36,7 @@
     /* Strict Type-Checking Options */
     // TODO: Lets get to place where we can enable strict
     "strict": false /* Enable all strict type-checking options. */,
-    "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
+    "noImplicitAny": false /* Raise error on expressions and declarations with an implied 'any' type. */,
     "strictNullChecks": true /* Enable strict null checks. */,
     // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
     // "strictPropertyInitialization": true,  /* Enable strict checking of property initialization in classes. */
@@ -55,9 +55,7 @@
     "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
     "baseUrl": "." /* Base directory to resolve non-absolute module names. */,
     "paths": {
-      /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
-      // types are a bit broken in source - https://github.com/wix/react-native-calendars/issues/1652
-      "react-native-calendars": ["node_modules/@types/react-native-calendars"]
+      "@app/*": ["./app/*"]
     },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     "typeRoots": [

@@ -1,14 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
-
-import { createSlice } from '@reduxjs/toolkit';
-
-import * as SQLiteActions from '../services/sqlite';
-import { getDiffInSeconds } from '../utils/time';
+import {createSlice} from '@reduxjs/toolkit';
 
 import type {PayloadAction} from '@reduxjs/toolkit';
 export type Task = {
   id: string;
-  name: String;
+  name: string;
   startDate: string;
   endDate?: string;
   trackedTime?: number;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, Text, TextInput, ViewStyle } from 'react-native';
+import {StyleProp, TextInput, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
 
 interface Props {

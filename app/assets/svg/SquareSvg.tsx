@@ -1,18 +1,14 @@
 import * as React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import Svg, {Path} from 'react-native-svg';
 
-interface Props {
-  width?: number;
-  height?: number;
-  color?: string;
-}
+import {SvgIconType} from '@app/src/types/svg';
 
 const SquareSvg = ({
   width = 24,
   height = 24,
   color = '#fff',
   ...rest
-}: Props) => (
+}: SvgIconType) => (
   <Svg width={width} height={height} {...rest}>
     <Path
       fill={color}

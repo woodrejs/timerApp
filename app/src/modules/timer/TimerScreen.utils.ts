@@ -1,6 +1,6 @@
-import { Task } from 'app/src/store/tasksSlice';
-import { isSameDay } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
+import {Task} from 'app/src/store/tasksSlice';
+import {isSameDay} from 'date-fns';
+import {v4 as uuidv4} from 'uuid';
 
 export const createNewTask = (name: string) => {
   return {

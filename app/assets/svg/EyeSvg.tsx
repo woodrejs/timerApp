@@ -1,13 +1,14 @@
 import * as React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import Svg, {Path} from 'react-native-svg';
 
-interface Props {
-  width?: number;
-  height?: number;
-  color?: string;
-}
+import {SvgIconType} from '@app/src/types/svg';
 
-const EyeSvg = ({width = 24, height = 24, color = '#fff', ...rest}: Props) => (
+const EyeSvg = ({
+  width = 24,
+  height = 24,
+  color = '#fff',
+  ...rest
+}: SvgIconType) => (
   <Svg
     clipRule="evenodd"
     fillRule="evenodd"

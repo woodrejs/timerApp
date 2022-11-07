@@ -2,14 +2,16 @@ import React from 'react';
 
 import EyeSvg from '@app/assets/svg/EyeSvg';
 import RoundIconButton from '@app/src/components/RoundIconButton';
-import { useBottomModalProvider } from '@app/src/modules/modals/hooks/useBottomModal';
-import { Task } from '@app/src/store/tasksSlice';
-import { getDiffInSeconds, secondsToFormat } from '@app/src/utils/time';
+import {useBottomModalProvider} from '@app/src/modules/modals/hooks/useBottomModal';
+import {Task} from '@app/src/store/tasksSlice';
+import {secondsToFormat} from '@app/src/utils/time';
 
-import { ModalName } from '../../modals/hooks/useBottomModal.utils';
+import {ModalName} from '../../modals/hooks/useBottomModal.utils';
 import * as Style from './TimerDayCard.style';
 import {
-    addTrackedTimeToTask, getLabel, getrackedTimeToTask, getTrackedTimeLabel
+  addTrackedTimeToTask,
+  getLabel,
+  getTrackedTimeLabel,
 } from './TimerDayCard.utils';
 
 interface Props {

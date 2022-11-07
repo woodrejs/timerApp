@@ -1,18 +1,23 @@
 import React from 'react';
-import { FlatList, View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import {FlatList, View} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 
 import SquareSvg from '@app/assets/svg/SquareSvg';
 import RoundIconButton from '@app/src/components/RoundIconButton';
-import { useAsyncEffect } from '@app/src/hooks/useAsyncEffect';
-import { addTask, addTasks, Task, updateTaskEndDate } from '@app/src/store/tasksSlice';
-import { getDiffInSeconds } from '@app/src/utils/time';
+import {useAsyncEffect} from '@app/src/hooks/useAsyncEffect';
+import {
+  addTask,
+  addTasks,
+  Task,
+  updateTaskEndDate,
+} from '@app/src/store/tasksSlice';
+import {getDiffInSeconds} from '@app/src/utils/time';
 
 import * as SQLiteActions from '../../services/sqlite';
 import TimerDayCard from './components/TimerDayCard';
 import useTimer from './hooks/useTimer';
 import * as Style from './TimerScreen.style';
-import { createNewTask, formatTasks } from './TimerScreen.utils';
+import {createNewTask, formatTasks} from './TimerScreen.utils';
 
 const TimerScreen = () => {
   const [taskName, setTaskName] = React.useState<string | undefined>();
@@ -60,19 +65,19 @@ const TimerScreen = () => {
   };
 
   React.useEffect(() => {
-    if (!lastTask?.endDate && tasks.length) {
+    if (lastTask && !lastTask?.endDate) {
       const diff = getDiffInSeconds(lastTask.startDate, new Date().toString());
       startTimer(diff);
       setRunningTask(lastTask);
       return;
     }
 
-    if (lastTask?.endDate && tasks.length) {
+    if (lastTask?.endDate) {
       stopTimer();
       setRunningTask(undefined);
       setTaskName(undefined);
     }
-  }, [tasks, lastTask]);
+  }, [lastTask, startTimer, stopTimer]);
 
   useAsyncEffect(async () => {
     const tasksFromSqlDB = await SQLiteActions.getAllTasks();
@@ -112,13 +117,15 @@ const TimerScreen = () => {
         <FlatList<Task[]>
           data={data}
           keyExtractor={(item, index) => `${item.length + index}`}
-          renderItem={({item}) => (
-            <TimerDayCard
-              label={item[0]?.startDate}
-              tasks={item}
-              startButtonOnPress={startButtonOnPress}
-            />
-          )}
+          renderItem={({item}) =>
+            item[0] ? (
+              <TimerDayCard
+                label={item[0].startDate}
+                tasks={item}
+                startButtonOnPress={startButtonOnPress}
+              />
+            ) : null
+          }
         />
       </Style.ListBox>
     </View>

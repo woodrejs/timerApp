@@ -6,4 +6,5 @@ export const useAsyncEffect = (
 ) =>
   React.useEffect(() => {
     cb();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
