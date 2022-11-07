@@ -57,6 +57,7 @@ module.exports = {
       files: ['*.ts', '*.tsx'], // Only lint typescript files
       parserOptions: {
         project: ['tsconfig.json'], // Specify it only for TypeScript files
+        tsconfigRootDir: __dirname,
       },
       rules: {
         // Don't delay - Make your React hooks reliable today!

@@ -1,18 +1,23 @@
 import React from 'react';
-import { FlatList } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import {FlatList} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 
 import SquareSvg from '@app/assets/svg/SquareSvg';
 import RoundIconButton from '@app/src/components/RoundIconButton';
-import { useAsyncEffect } from '@app/src/hooks/useAsyncEffect';
-import { addTask, addTasks, Task, updateTaskEndDate } from '@app/src/store/tasksSlice';
-import { getDiffInSeconds } from '@app/src/utils/time';
+import {useAsyncEffect} from '@app/src/hooks/useAsyncEffect';
+import {
+  addTask,
+  addTasks,
+  Task,
+  updateTaskEndDate,
+} from '@app/src/store/tasksSlice';
+import {getDiffInSeconds} from '@app/src/utils/time';
 
 import * as SQLiteActions from '../../services/sqlite';
 import TimerDayCard from './components/TimerDayCard';
 import useTimer from './hooks/useTimer';
 import * as Style from './TimerScreen.style';
-import { createNewTask, formatTasks } from './TimerScreen.utils';
+import {createNewTask, formatTasks} from './TimerScreen.utils';
 
 const TimerScreen = () => {
   const [taskName, setTaskName] = React.useState<string | undefined>();
@@ -28,21 +33,24 @@ const TimerScreen = () => {
   const data = React.useMemo(() => formatTasks(tasks), [tasks]);
 
   const handleInput = (value: string) => setTaskName(value);
-  const handleStart = async (name?: string) => {
-    const nameToSet = taskName || name;
+  const handleStart = React.useCallback(
+    async (name?: string) => {
+      const nameToSet = taskName || name;
 
-    if (!nameToSet) {
-      setError('Error');
-      return;
-    }
+      if (!nameToSet) {
+        setError('Error');
+        return;
+      }
 
-    if (!runningTask) {
-      const newTask = createNewTask(nameToSet);
-      dispatch(addTask(newTask));
-      await SQLiteActions.addTask(newTask);
-      setError(undefined);
-    }
-  };
+      if (!runningTask) {
+        const newTask = createNewTask(nameToSet);
+        dispatch(addTask(newTask));
+        await SQLiteActions.addTask(newTask);
+        setError(undefined);
+      }
+    },
+    [dispatch, runningTask, taskName],
+  );
   const handleStop = async () => {
     if (runningTask) {
       const dateString = new Date().toString();
@@ -58,7 +66,7 @@ const TimerScreen = () => {
         setTaskName(name);
       }
     },
-    [runningTask],
+    [handleStart, runningTask],
   );
 
   const renderItem = React.useCallback(
