@@ -51,12 +51,36 @@ const TimerScreen = () => {
       setTaskName(undefined);
     }
   };
-  const startButtonOnPress = (name: string) => {
-    if (!runningTask) {
-      handleStart(name);
-      setTaskName(name);
-    }
-  };
+  const startButtonOnPress = React.useCallback(
+    (name: string) => {
+      if (!runningTask) {
+        handleStart(name);
+        setTaskName(name);
+      }
+    },
+    [runningTask],
+  );
+
+  const renderItem = React.useCallback(
+    ({item}: {item: Task[]}) =>
+      item[0] ? (
+        <TimerDayCard
+          label={item[0].startDate}
+          tasks={item}
+          startButtonOnPress={startButtonOnPress}
+        />
+      ) : null,
+    [startButtonOnPress],
+  );
+
+  const ListEmptyComponent = React.useMemo(
+    () => (
+      <Style.EmptyBox>
+        <Style.EmptyBoxTitle>No tasks</Style.EmptyBoxTitle>
+      </Style.EmptyBox>
+    ),
+    [],
+  );
 
   React.useEffect(() => {
     if (lastTask && !lastTask?.endDate) {
@@ -86,20 +110,8 @@ const TimerScreen = () => {
         stickyHeaderIndices={[0]}
         showsVerticalScrollIndicator={false}
         bounces={false}
-        renderItem={({item}) =>
-          item[0] ? (
-            <TimerDayCard
-              label={item[0].startDate}
-              tasks={item}
-              startButtonOnPress={startButtonOnPress}
-            />
-          ) : null
-        }
-        ListEmptyComponent={
-          <Style.EmptyBox>
-            <Style.EmptyBoxTitle>No tasks</Style.EmptyBoxTitle>
-          </Style.EmptyBox>
-        }
+        renderItem={renderItem}
+        ListEmptyComponent={ListEmptyComponent}
         ListHeaderComponent={
           <Style.Panel>
             {isRunning ? (
